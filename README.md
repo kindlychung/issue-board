@@ -1,2 +1,3 @@
-# issue-board
-A app to keep an overview of a projects issues and pull requests
+# Issue Board
+
+An app to keep an overview of a projects issues and pull requests
