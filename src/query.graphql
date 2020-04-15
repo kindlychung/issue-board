@@ -1,0 +1,20 @@
+query {
+  repository(name: "{{repo}}", owner: "{{owner}}") {
+    issues(first: 10, orderBy: {field: CREATED_AT, direction: DESC}, states: OPEN) {
+      nodes {
+        number
+        title
+        author {
+          ... on User {
+            name
+          }
+        }
+        labels(first: 10) {
+          nodes {
+            name
+          }
+        }
+      }
+    }
+  }
+}
