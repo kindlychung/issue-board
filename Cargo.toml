@@ -9,6 +9,7 @@ druid = { git = "https://github.com/xi-editor/druid" }
 ureq = { version = "0.12.1", features = ["json"] }
 serde_json = "1.0.51"
 string_template = "0.2.1"
+anyhow = "1.0.28"
 
 [patch."https://github.com/xi-editor/druid".druid]
 path = "../druid/druid"

@@ -1,10 +1,12 @@
+use anyhow::{anyhow, Result};
 use druid::{
     widget::{CrossAxisAlignment, Flex, Label, List, Scroll},
-    AppLauncher, Data, Lens, LocalizedString, Selector, UnitPoint, Widget, WidgetExt, WindowDesc,
+    AppLauncher, Data, Lens, LocalizedString, UnitPoint, Widget, WidgetExt, WindowDesc,
 };
 use std::sync::Arc;
+use string_template::Template;
 
-pub const QUERY_COMPLETE: Selector = Selector::new("issue-board.query-complete");
+const GITHUB_GRAPHQL_ENDPOINT: &str = "https://api.github.com/graphql";
 
 #[derive(Clone, Data, Lens)]
 struct IssueBoard {
@@ -17,6 +19,18 @@ struct Issue {
     author: Arc<str>,
 }
 
+#[derive(Debug, Clone, Copy)]
+struct Query<'a> {
+    owner: &'a str,
+    repo: &'a str,
+}
+
+impl<'a> Query<'a> {
+    pub fn new(owner: &'a str, repo: &'a str) -> Self {
+        Query { owner, repo }
+    }
+}
+
 impl IssueBoard {
     pub fn new() -> Self {
         IssueBoard {
@@ -25,32 +39,53 @@ impl IssueBoard {
     }
 }
 
+fn query_github(query: Query) -> Result<Vec<Issue>> {
+    let mut args = std::collections::HashMap::new();
+    args.insert("owner", query.owner);
+    args.insert("repo", query.repo);
+    let query = Template::new(include_str!("query.graphql")).render(&args);
+
+    let response = ureq::post(GITHUB_GRAPHQL_ENDPOINT)
+        .auth_kind("bearer", include_str!("../github_token"))
+        .send_json(serde_json::json!({ "query": query }))
+        .into_json()?;
+
+    let issues_json: &serde_json::Value = response
+        .pointer("/data/repository/issues/nodes")
+        .ok_or_else(|| {
+            anyhow!(
+                "Response did not contain issues:\n{}",
+                serde_json::to_string(&response).unwrap_or("Invalid JSON response".into())
+            )
+        })?;
+
+    let mut issues = Vec::new();
+    for issue in issues_json.as_array().unwrap() {
+        let author = issue["author"]["name"]
+            .as_str()
+            .or_else(|| issue["author"]["login"].as_str())
+            .ok_or(anyhow!("An issue had no author"))?
+            .into();
+        let title = issue["title"]
+            .as_str()
+            .ok_or(anyhow!("An issue had no title"))?
+            .into();
+        issues.push(Issue { title, author });
+    }
+    Ok(issues)
+}
+
 fn main() {
     let title = LocalizedString::new("Issue Board");
     let window = WindowDesc::new(IssueBoard::widget).title(title);
 
     let (owner, repo) = ("xi-editor", "druid");
 
-    let mut args = std::collections::HashMap::new();
-    args.insert("owner", owner);
-    args.insert("repo", repo);
-    let query = string_template::Template::new(include_str!("query.graphql")).render(&args);
-
     let mut board = IssueBoard::new();
 
-    let reponse = ureq::post("https://api.github.com/graphql")
-        .auth_kind("bearer", include_str!("../github_token"))
-        .send_json(serde_json::json!({ "query": query }))
-        .into_json()
-        .expect("Failed to query Github");
-
-    let issues: &serde_json::Value = &reponse["data"]["repository"]["issues"]["nodes"];
-
-    for issue in issues.as_array().unwrap() {
-        let author = issue["author"]["name"].as_str().unwrap_or("Nobody").into();
-        let title = issue["title"].as_str().unwrap().into();
-        Arc::make_mut(&mut board.issues).push(Issue { title, author });
-    }
+    let query = Query::new(owner, repo);
+    let issues = query_github(query).expect("Failed to query Github");
+    Arc::make_mut(&mut board.issues).extend(issues.into_iter());
 
     AppLauncher::with_window(window)
         .launch(board)
@@ -76,7 +111,9 @@ impl Issue {
             .cross_axis_alignment(CrossAxisAlignment::Start)
             .with_child(Label::dynamic(|data: &Issue, _| data.title.to_string()))
             .with_spacer(10.0)
-            .with_child(Label::dynamic(|data: &Issue, _| format!("- {}", data.author)))
+            .with_child(Label::dynamic(|data: &Issue, _| {
+                format!("- {}", data.author)
+            }))
             .padding(10.0)
             .border(druid::theme::BORDER_LIGHT, 2.0)
             .rounded(5.0)
