@@ -1,6 +1,6 @@
 query {
   repository(name: "{{repo}}", owner: "{{owner}}") {
-    issues(first: 10, orderBy: {field: CREATED_AT, direction: DESC}, states: OPEN) {
+    issues(first: 10, after: {{page}}, orderBy: {field: CREATED_AT, direction: DESC}, states: OPEN) {
       nodes {
         number
         title
@@ -16,6 +16,10 @@ query {
           }
         }
       }
+      pageInfo {
+        endCursor
+      }
+      totalCount
     }
   }
 }
