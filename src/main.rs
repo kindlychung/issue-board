@@ -24,10 +24,67 @@ struct Issue {
     author: Arc<str>,
 }
 
+trait Backend {
+    fn query(&self, query: Query) -> Result<Vec<Issue>>;
+}
+
+struct Github {
+    the_query: Template,
+}
+
 #[derive(Debug, Clone, Copy)]
 struct Query<'a> {
     owner: &'a str,
     repo: &'a str,
+}
+
+impl Github {
+    pub fn new() -> Self {
+        let the_query = Template::new(include_str!("query.graphql"));
+        Github { the_query }
+    }
+
+    fn the_query(&self, owner: &str, repo: &str) -> String {
+        let mut args = std::collections::HashMap::new();
+        args.insert("owner", owner);
+        args.insert("repo", repo);
+        self.the_query.render(&args)
+    }
+}
+
+impl Backend for Github {
+    fn query(&self, query: Query) -> Result<Vec<Issue>> {
+        let query = self.the_query(query.owner, query.repo);
+
+        let response = ureq::post(GITHUB_GRAPHQL_ENDPOINT)
+            .auth_kind("bearer", include_str!("../github_token"))
+            .send_json(serde_json::json!({ "query": query }))
+            .into_json()?;
+
+        let issues_json: &serde_json::Value = response
+            .pointer("/data/repository/issues/nodes")
+            .ok_or_else(|| {
+                anyhow!(
+                    "Response did not contain issues:\n{}",
+                    serde_json::to_string(&response).unwrap_or("Invalid JSON response".into())
+                )
+            })?;
+
+        let mut issues = Vec::new();
+        for issue in issues_json.as_array().unwrap() {
+            let author = issue["author"]["name"]
+                .as_str()
+                .or_else(|| issue["author"]["login"].as_str())
+                .ok_or(anyhow!("An issue had no author"))?
+                .into();
+            let title = issue["title"]
+                .as_str()
+                .ok_or(anyhow!("An issue had no title"))?
+                .into();
+            issues.push(Issue { title, author });
+        }
+        Ok(issues)
+    }
 }
 
 impl<'a> Query<'a> {
@@ -52,59 +109,24 @@ impl IssueColumn {
     }
 }
 
-fn query_github(query: Query) -> Result<Vec<Issue>> {
-    let mut args = std::collections::HashMap::new();
-    args.insert("owner", query.owner);
-    args.insert("repo", query.repo);
-    let query = Template::new(include_str!("query.graphql")).render(&args);
-
-    let response = ureq::post(GITHUB_GRAPHQL_ENDPOINT)
-        .auth_kind("bearer", include_str!("../github_token"))
-        .send_json(serde_json::json!({ "query": query }))
-        .into_json()?;
-
-    let issues_json: &serde_json::Value = response
-        .pointer("/data/repository/issues/nodes")
-        .ok_or_else(|| {
-            anyhow!(
-                "Response did not contain issues:\n{}",
-                serde_json::to_string(&response).unwrap_or("Invalid JSON response".into())
-            )
-        })?;
-
-    let mut issues = Vec::new();
-    for issue in issues_json.as_array().unwrap() {
-        let author = issue["author"]["name"]
-            .as_str()
-            .or_else(|| issue["author"]["login"].as_str())
-            .ok_or(anyhow!("An issue had no author"))?
-            .into();
-        let title = issue["title"]
-            .as_str()
-            .ok_or(anyhow!("An issue had no title"))?
-            .into();
-        issues.push(Issue { title, author });
-    }
-    Ok(issues)
-}
-
 fn main() {
     let title = LocalizedString::new("Issue Board");
     let window = WindowDesc::new(IssueBoard::widget).title(title);
 
+    let backend = Github::new();
     let (owner, repo) = ("xi-editor", "druid");
 
     let mut board = IssueBoard::new();
 
     {
         let query = Query::new(owner, repo);
-        let issues = query_github(query).expect("Failed to query Github");
+        let issues = backend.query(query).expect("Failed to query Github");
         let column = &mut Arc::make_mut(&mut board.columns)[0];
         Arc::make_mut(&mut column.issues).extend(issues.into_iter());
     }
     {
         let query = Query::new(owner, repo);
-        let issues = query_github(query).expect("Failed to query Github");
+        let issues = backend.query(query).expect("Failed to query Github");
         let column = &mut Arc::make_mut(&mut board.columns)[1];
         Arc::make_mut(&mut column.issues).extend(issues.into_iter());
     }
