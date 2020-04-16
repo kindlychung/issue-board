@@ -13,3 +13,7 @@ anyhow = "1.0.28"
 
 [patch."https://github.com/xi-editor/druid".druid]
 path = "../druid/druid"
+
+[patch.crates-io.piet-common]
+git = "https://github.com/linebender/piet"
+package = "piet-common"

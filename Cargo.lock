@@ -171,6 +171,16 @@ dependencies = [
 ]
 
 [[package]]
+name = "console_log"
+version = "0.1.2"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "1e7871d2947441b0fdd8e2bd1ce2a2f75304f896582c0d572162d48290683c48"
+dependencies = [
+ "log",
+ "web-sys",
+]
+
+[[package]]
 name = "cookie"
 version = "0.13.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -252,12 +262,14 @@ checksum = "212d0f5754cb6769937f4501cc0e67f4f4483c8d2c3e1e922ee9edbe4ab4c7c0"
 name = "druid"
 version = "0.6.0"
 dependencies = [
+ "console_log",
  "druid-derive",
  "druid-shell",
  "fluent-bundle",
  "fluent-langneg",
  "fluent-syntax",
  "fnv",
+ "instant",
  "log",
  "simple_logger",
  "unic-langid",
@@ -288,12 +300,16 @@ dependencies = [
  "glib-sys",
  "gtk",
  "gtk-sys",
+ "instant",
+ "js-sys",
  "kurbo",
  "lazy_static",
  "log",
  "objc",
  "piet-common",
  "time",
+ "wasm-bindgen",
+ "web-sys",
  "winapi",
  "wio",
 ]
@@ -647,6 +663,15 @@ dependencies = [
 ]
 
 [[package]]
+name = "instant"
+version = "0.1.2"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "6c346c299e3fe8ef94dc10c2c0253d858a69aac1245157a3bf4125915d528caf"
+dependencies = [
+ "web-sys",
+]
+
+[[package]]
 name = "intl-memoizer"
 version = "0.4.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -866,8 +891,7 @@ checksum = "d4fd5641d01c8f18a23da7b6fe29298ff4b55afcccdf78973b24cf3175fee32e"
 [[package]]
 name = "piet"
 version = "0.0.12"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "29420eccb68d6b9ad2f8dd87caf9c3bcd3bbd056bfe67871c48b6efab9316b79"
+source = "git+https://github.com/linebender/piet#2820b4a49fbf5a83fa6f38f24a514002c2c9153a"
 dependencies = [
  "kurbo",
 ]
@@ -875,8 +899,7 @@ dependencies = [
 [[package]]
 name = "piet-cairo"
 version = "0.0.12"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "868fd3fc61bae866e7b7478fc5cef8f16539c8253a40efa6da5ed19d123db080"
+source = "git+https://github.com/linebender/piet#2820b4a49fbf5a83fa6f38f24a514002c2c9153a"
 dependencies = [
  "cairo-rs",
  "piet",
@@ -887,8 +910,7 @@ dependencies = [
 [[package]]
 name = "piet-common"
 version = "0.0.12"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "d03ff40ba9fcbfd5f4a209919454ed375b3d426b935947ff82dcf6686b8061e7"
+source = "git+https://github.com/linebender/piet#2820b4a49fbf5a83fa6f38f24a514002c2c9153a"
 dependencies = [
  "cairo-rs",
  "cfg-if",
@@ -905,8 +927,7 @@ dependencies = [
 [[package]]
 name = "piet-direct2d"
 version = "0.0.12"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "0ef59b37f94f032f98f62c9701b42b0ef98cf667edeb1cfca3206523854850d2"
+source = "git+https://github.com/linebender/piet#2820b4a49fbf5a83fa6f38f24a514002c2c9153a"
 dependencies = [
  "piet",
  "winapi",
@@ -916,8 +937,7 @@ dependencies = [
 [[package]]
 name = "piet-web"
 version = "0.0.12"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "a63b986af9dc8ebfd8267cde277b0ae62af322ba877466422f450cabf1678e22"
+source = "git+https://github.com/linebender/piet#2820b4a49fbf5a83fa6f38f24a514002c2c9153a"
 dependencies = [
  "js-sys",
  "piet",

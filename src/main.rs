@@ -10,6 +10,11 @@ const GITHUB_GRAPHQL_ENDPOINT: &str = "https://api.github.com/graphql";
 
 #[derive(Clone, Data, Lens)]
 struct IssueBoard {
+    columns: Arc<Vec<IssueColumn>>,
+}
+
+#[derive(Clone, Data, Lens)]
+struct IssueColumn {
     issues: Arc<Vec<Issue>>,
 }
 
@@ -34,7 +39,15 @@ impl<'a> Query<'a> {
 impl IssueBoard {
     pub fn new() -> Self {
         IssueBoard {
-            issues: Default::default(),
+            columns: Arc::new(vec![IssueColumn::new(), IssueColumn::new()]),
+        }
+    }
+}
+
+impl IssueColumn {
+    pub fn new() -> Self {
+        IssueColumn {
+            issues: Arc::new(Vec::new()),
         }
     }
 }
@@ -83,9 +96,18 @@ fn main() {
 
     let mut board = IssueBoard::new();
 
-    let query = Query::new(owner, repo);
-    let issues = query_github(query).expect("Failed to query Github");
-    Arc::make_mut(&mut board.issues).extend(issues.into_iter());
+    {
+        let query = Query::new(owner, repo);
+        let issues = query_github(query).expect("Failed to query Github");
+        let column = &mut Arc::make_mut(&mut board.columns)[0];
+        Arc::make_mut(&mut column.issues).extend(issues.into_iter());
+    }
+    {
+        let query = Query::new(owner, repo);
+        let issues = query_github(query).expect("Failed to query Github");
+        let column = &mut Arc::make_mut(&mut board.columns)[1];
+        Arc::make_mut(&mut column.issues).extend(issues.into_iter());
+    }
 
     AppLauncher::with_window(window)
         .launch(board)
@@ -94,12 +116,21 @@ fn main() {
 
 impl IssueBoard {
     pub fn widget() -> impl Widget<IssueBoard> {
+        Scroll::new(List::columns(IssueColumn::widget).lens(Self::columns))
+            .horizontal()
+            .expand()
+    }
+}
+
+impl IssueColumn {
+    pub fn widget() -> impl Widget<IssueColumn> {
         Scroll::new(
-            List::new(Issue::widget)
+            List::rows(Issue::widget)
                 .padding(10.0)
                 .fix_width(300.0)
-                .lens(IssueBoard::issues),
+                .lens(Self::issues),
         )
+        .vertical()
         .align_vertical(UnitPoint::TOP)
         .align_horizontal(UnitPoint::CENTER)
     }
