@@ -261,6 +261,7 @@ checksum = "212d0f5754cb6769937f4501cc0e67f4f4483c8d2c3e1e922ee9edbe4ab4c7c0"
 [[package]]
 name = "druid"
 version = "0.6.0"
+source = "git+https://github.com/finnerale/druid?branch=issue-board#35aff1ddfab97abf0bdfb3d30098560b0fe84e4e"
 dependencies = [
  "console_log",
  "druid-derive",
@@ -280,6 +281,7 @@ dependencies = [
 [[package]]
 name = "druid-derive"
 version = "0.4.0"
+source = "git+https://github.com/finnerale/druid?branch=issue-board#35aff1ddfab97abf0bdfb3d30098560b0fe84e4e"
 dependencies = [
  "proc-macro2",
  "quote",
@@ -289,6 +291,7 @@ dependencies = [
 [[package]]
 name = "druid-shell"
 version = "0.6.0"
+source = "git+https://github.com/finnerale/druid?branch=issue-board#35aff1ddfab97abf0bdfb3d30098560b0fe84e4e"
 dependencies = [
  "cairo-rs",
  "cfg-if",
@@ -644,9 +647,9 @@ dependencies = [
 
 [[package]]
 name = "hermit-abi"
-version = "0.1.10"
+version = "0.1.11"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "725cf19794cf90aa94e65050cb4191ff5d8fa87a498383774c47b332e3af952e"
+checksum = "8a0d737e0f947a1864e93d33fdef4af8445a00d1ed8dc0c8ddb73139ea6abf15"
 dependencies = [
  "libc",
 ]
@@ -891,7 +894,7 @@ checksum = "d4fd5641d01c8f18a23da7b6fe29298ff4b55afcccdf78973b24cf3175fee32e"
 [[package]]
 name = "piet"
 version = "0.0.12"
-source = "git+https://github.com/linebender/piet#2820b4a49fbf5a83fa6f38f24a514002c2c9153a"
+source = "git+https://github.com/linebender/piet#bc58224b982d0b54fc64904b1fb9541a681078c1"
 dependencies = [
  "kurbo",
 ]
@@ -899,7 +902,7 @@ dependencies = [
 [[package]]
 name = "piet-cairo"
 version = "0.0.12"
-source = "git+https://github.com/linebender/piet#2820b4a49fbf5a83fa6f38f24a514002c2c9153a"
+source = "git+https://github.com/linebender/piet#bc58224b982d0b54fc64904b1fb9541a681078c1"
 dependencies = [
  "cairo-rs",
  "piet",
@@ -910,7 +913,7 @@ dependencies = [
 [[package]]
 name = "piet-common"
 version = "0.0.12"
-source = "git+https://github.com/linebender/piet#2820b4a49fbf5a83fa6f38f24a514002c2c9153a"
+source = "git+https://github.com/linebender/piet#bc58224b982d0b54fc64904b1fb9541a681078c1"
 dependencies = [
  "cairo-rs",
  "cfg-if",
@@ -927,7 +930,7 @@ dependencies = [
 [[package]]
 name = "piet-direct2d"
 version = "0.0.12"
-source = "git+https://github.com/linebender/piet#2820b4a49fbf5a83fa6f38f24a514002c2c9153a"
+source = "git+https://github.com/linebender/piet#bc58224b982d0b54fc64904b1fb9541a681078c1"
 dependencies = [
  "piet",
  "winapi",
@@ -937,7 +940,7 @@ dependencies = [
 [[package]]
 name = "piet-web"
 version = "0.0.12"
-source = "git+https://github.com/linebender/piet#2820b4a49fbf5a83fa6f38f24a514002c2c9153a"
+source = "git+https://github.com/linebender/piet#bc58224b982d0b54fc64904b1fb9541a681078c1"
 dependencies = [
  "js-sys",
  "piet",

@@ -12,7 +12,8 @@ string_template = "0.2.1"
 anyhow = "1.0.28"
 
 [patch."https://github.com/xi-editor/druid".druid]
-path = "../druid/druid"
+git = "https://github.com/finnerale/druid"
+branch = "issue-board"
 
 [patch.crates-io.piet-common]
 git = "https://github.com/linebender/piet"
