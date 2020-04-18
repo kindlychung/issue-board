@@ -1,0 +1,24 @@
+query {
+  search(query: "{{search}}", first: 10, after: {{page}}, type: ISSUE) {
+    nodes {
+      ... on Issue {
+        number
+        title
+        author {
+          ... on User {
+            name
+            login
+          }
+        }
+        labels(first: 10) {
+          nodes {
+            name
+          }
+        }
+      }
+    }
+    pageInfo {
+      endCursor
+    }
+  }
+}

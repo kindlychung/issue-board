@@ -19,8 +19,10 @@ fn main() {
     let mut next_page = GithubPage::default();
     for _ in 0..3 {
         let query = Query {
-            owner,
-            repo,
+            repo: Repository {
+                owner,
+                name: repo,
+            },
             page: &next_page,
         };
         let result = backend.query(query).expect("Failed to query Github");

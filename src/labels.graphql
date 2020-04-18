@@ -1,0 +1,11 @@
+{
+  repository(name: {{repo}}, owner: {{owner}}) {
+    labels(first: 100) {
+      nodes {
+        name
+        description
+        color
+      }
+    }
+  }
+}
